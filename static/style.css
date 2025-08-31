@@ -1,72 +1,44 @@
 :root {
   --bg: #eef6ff;
-  --card: #8cacc5;
-  --text: #020202;
-  --muted: #b10b22;
-  --accent: #2b9bff;
-  --sunny: #d5f507;
-  --rainy: #3b82f6;
+  --card: #fff;
+  --text: #1e293b;
   --radius: 12px;
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
+  margin: 0;
   background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
 }
 
-/* ========== Header ========== */
+.container {
+  max-width: 960px;
+  margin: 20px auto;
+  padding: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.8rem;
+}
+
+/* --- Topbar --- */
 .topbar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 14px 22px;
-  background: linear-gradient(90deg, #0ea5a4, #0ea5a4 100%);
-  color: white;
-  box-shadow: var(--shadow);
+  background: #0ea5a4;
 }
 
 .logo {
-  font-weight: 700;
-  font-size: 20px;
-}
-
-.filter-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  background: #0ea5a4;
-  border-radius: var(--radius);
-  width: fit-content;
-}
-
-.filter-item {
-  background: white;
-  color: #0ea5a4;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: left;
-}
-
-.filter-item:hover {
-  background: #d1f4f3;
-}
-
-.filter-item.active {
-  background: #ffffff;
-  color: #0ea5a4;
-  box-shadow: 0 0 0 2px white, 0 0 0 4px #94e2df;
+  font-weight: 900;
+  font-size: 30px;
 }
 
 .search input {
@@ -83,158 +55,152 @@ body {
   color: #0ea5a4;
   border: none;
   border-radius: var(--radius);
-  cursor: pointer;
 }
 
-/* ========== Container ========== */
-.container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 0 18px 60px;
+.nowcast-card-modern {
+  color: #f1f5f9;
+  background: linear-gradient(135deg, #344560, #374667);
+
 }
 
-/* ========== Card ========== */
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  margin-bottom: 18px;
+.temp {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
-/* ========== Nowcast ========== */
-.nowcast-row {
+.weather-details {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.big-temp {
-  font-size: 48px;
-  font-weight: 800;
-}
 
-.small-stats {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-/* AQI Circle */
-.aqi-value {
-  font-size: 32px;
-  font-weight: bold;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
-  background: #f87171;
-  color: white;
-}
-
-/* ========== Weather Overview ========== */
-.overview-row {
-  display: grid;
-  grid-template-columns: 1.5fr 2fr;
-  gap: 18px;
-}
-
-.overview-list {
-  list-style: none;
-  color: var(--muted);
-  margin-top: 10px;
-}
-
-/* ========== Chart Legend ========== */
-.legend {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.legend span {
-  width: 12px;
-  height: 8px;
-  border-radius: 3px;
-}
-
-.leg-high {
-  background: #f87171;
-}
-
-.leg-low {
-  background: #60a5fa;
-}
-
-/* ========== Hourly Forecast ========== */
+/* --- Dự báo theo giờ --- */
 .hour-scroll {
   display: flex;
   overflow-x: auto;
-  gap: 12px;
-  padding: 8px 0;
+  gap: 1rem;
+  padding-bottom: 0.4rem;
 }
 
 .hour-block {
   min-width: 210px;
   text-align: center;
   background: #f8fafc;
-  padding: 16px;
+  padding: 1rem;
   border-radius: var(--radius);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
 }
 
-/* ========== Daily Forecast ========== */
+.hour-block .temp {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-top: 0.2rem;
+}
+
+/* --- Dự báo 5 ngày --- */
 .day-grid {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 1rem;
 }
 
 .day-block {
-  flex: 1;
-  text-align: center;
-  background: #f8fafc;
-  padding: 12px;
+  background: #f9fafb;
   border-radius: var(--radius);
-}
-
-/* ========== Climate Table ========== */
-.climate-summary table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.climate-summary th,
-.climate-summary td {
-  padding: 8px;
+  padding: 1rem;
   text-align: center;
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
 }
 
-.climate-summary th {
-  background: #f1f5f9;
+.day-block .day {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #475569;
+}
+
+.day-block .max {
+  margin-top: 0.3rem;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #15161a;
+}
+
+/* --- Thông tin khí hậu --- */
+.info-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.climate-info, .climate-summary {
+  flex: 1 1 280px;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.climate-info ul {
+  list-style-type: disc;
+  padding-left: 1.4rem;
+  margin: 0;
   font-weight: 600;
 }
 
-/* ========== Responsive ========== */
-@media (max-width: 960px) {
-  .overview-row {
-    grid-template-columns: 1fr;
-  }
+.climate-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  font-weight: 600;
+}
 
-  .nowcast-row,
-  .day-grid,
-  .info-row {
+.climate-summary th, .climate-summary td {
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 0.8rem;
+  text-align: center;
+}
+
+.climate-summary thead {
+  background-color: #cbd5e1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  height: 8px;
+}
+
+/* --- Bản đồ --- */
+.map-card {
+  padding: 1rem 1.5rem;
+}
+
+.search-results {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  margin-top: 2px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.search-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.search-item:hover {
+  background: #f3f4f6;
+}
+@media (max-width: 960px) {
+  .info-row, .day-grid {
     flex-direction: column;
   }
 }
