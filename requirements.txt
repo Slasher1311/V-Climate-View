@@ -7,3 +7,4 @@ statsmodels==0.14.0
 pmdarima==2.0.3
 flask
 flask_bootstrap
+gunicorn
