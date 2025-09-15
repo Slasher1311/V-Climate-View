@@ -28,12 +28,16 @@ body {
   margin-bottom: 1.8rem;
 }
 
-/* --- Topbar --- */
 .topbar {
   display: flex;
   justify-content: space-between;
   padding: 14px 22px;
   background: #0ea5a4;
+  align-items: center;
+  padding: 14px 22px;
+  background: #0ea5a4;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .logo {
@@ -60,7 +64,6 @@ body {
 .nowcast-card-modern {
   color: #f1f5f9;
   background: linear-gradient(135deg, #344560, #374667);
-
 }
 
 .temp {
@@ -76,13 +79,22 @@ body {
   margin-top: 1rem;
 }
 
-
-/* --- Dự báo theo giờ --- */
 .hour-scroll {
   display: flex;
   overflow-x: auto;
   gap: 1rem;
   padding-bottom: 0.4rem;
+  scrollbar-width: thin;
+  scrollbar-color: #26a3c9 transparent;
+}
+
+.hour-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.hour-scroll::-webkit-scrollbar-thumb {
+  background-color: #44c5ce;
+  border-radius: 4px;
 }
 
 .hour-block {
@@ -92,6 +104,13 @@ body {
   padding: 1rem;
   border-radius: var(--radius);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.hour-block:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
 }
 
 .hour-block .temp {
@@ -101,7 +120,6 @@ body {
   margin-top: 0.2rem;
 }
 
-/* --- Dự báo 5 ngày --- */
 .day-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
@@ -114,6 +132,12 @@ body {
   padding: 1rem;
   text-align: center;
   box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+  transition: box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.day-block:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .day-block .day {
@@ -129,7 +153,11 @@ body {
   color: #15161a;
 }
 
-/* --- Thông tin khí hậu --- */
+#trendChart, #hourlyChart {
+  width: 100% !important;
+  height: auto !important;
+}
+
 .info-row {
   display: flex;
   gap: 2rem;
@@ -167,12 +195,10 @@ body {
   background-color: #cbd5e1;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   height: 8px;
 }
 
-/* --- Bản đồ --- */
 .map-card {
   padding: 1rem 1.5rem;
 }
@@ -199,8 +225,21 @@ body {
 .search-item:hover {
   background: #f3f4f6;
 }
+
 @media (max-width: 960px) {
   .info-row, .day-grid {
     flex-direction: column;
   }
+  body {
+    background-color: #475569;
+    color: #fff;
+  }
+}
+
+.map-card { padding: 1rem 1.5rem; }
+
+@media (max-width: 960px) {
+  .info-row { flex-direction: column; }
+  .day-grid { grid-template-columns: 1fr !important; }
+  .topbar { justify-content: center; }
 }
