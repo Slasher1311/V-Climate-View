@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
-from flask_bootstrap import Bootstrap
-import dask.dataframe as dd
+from flask_bootstrap import Bootstrap 
 import pandas as pd
 from pmdarima import auto_arima
 from datetime import timedelta
