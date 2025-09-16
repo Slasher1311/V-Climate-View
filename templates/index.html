@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>V-ClimateView</title>
-  <base href="/V-Climate-View/">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -17,6 +16,7 @@
     <div class="top-left">
       <div class="logo">V-ClimateView</div>
     </div>
+
     <nav class="top-nav">
       <div class="nav-left">
         <span class="menu-icon" onclick="toggleMenu()">☰</span>
@@ -30,29 +30,20 @@
         <button class="filter-item" onclick="showSection('map')">Bản đồ</button>
       </div>
     </nav>
-    <div class="top-right">
-      <div class="search">
-        <input id="searchInput" placeholder="Tìm địa điểm..." onkeyup="handleSearch()"/>
-        <button id="searchBtn" onclick="performSearch()">
-          <i class="fas fa-search"></i>
-        </button>
-        <div id="searchResults" class="search-results" style="display: none;"></div>
-      </div>
-    </div>
-  </header>
-  <main class="container">
 
   </header>
-  <section class="card global-filter">
+    <section class="card global-filter">
     <form id="globalFilterForm" method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
       <div>
         <label for="province">Tỉnh/Thành:</label>
         <input type="text" name="province" id="province" value="{{ province or '' }}" placeholder="Nhập tên tỉnh...">
       </div>
+
       <div>
         <label for="station">Tên trạm:</label>
         <input type="text" name="station_name" id="station" value="{{ station_name or '' }}" placeholder="VD: Hanoi">
       </div>
+
       <div>
         <label for="range">Khoảng thời gian:</label>
         <select name="range" id="range">
@@ -61,10 +52,10 @@
           <option value="365" {% if selected_range == 365 %}selected{% endif %}>12 tháng</option>
         </select>
       </div>
+
       <button type="submit">Áp dụng</button>
     </form>
   </section>
-
   <main class="container">
     <section class="row nowcast-row">
       <article class="card nowcast-card-modern">
@@ -78,15 +69,6 @@
             <i class="fas fa-cloud" style="font-size: 48px; color: #fff;"></i> 
           </div>
         </div>
-        <div class="weather-details">
-          <div class="detail"><i class="fas fa-tint"></i> Độ ẩm: <strong>{{ latest_weather.humidity }}%</strong></div>
-          <div class="detail"><i class="fas fa-wind"></i> Gió: <strong>{{ latest_weather.wind }} km/h</strong></div>
-          <div class="detail"><i class="fas fa-eye"></i> Tầm nhìn: <strong>{{ latest_weather.visibility / 1000 }} km</strong></div>
-          <div class="detail"><i class="fas fa-compress-alt"></i> Áp suất: <strong>{{ latest_weather.pressure /1000 }} hPa</strong></div>
-          <div class="detail"><i class="fas fa-thermometer-half"></i> Điểm sương: <strong>{{ latest_weather.humidity * 0.01 * latest_weather.temp | round(1) }}°C</strong></div>
-        </div>
-      </article>
-    </section>
         <div class="weather-details">
           <div class="detail"><i class="fas fa-tint"></i> Độ ẩm: <strong>{{ latest_weather.humidity if latest_weather.humidity is not none else "N/A" }}%</strong></div>
           <div class="detail"><i class="fas fa-wind"></i> Gió: <strong>{{ latest_weather.wind if latest_weather.wind is not none else "N/A" }} km/h</strong></div>
@@ -105,16 +87,15 @@
         <div class="trend-header">
           <h4>Xu hướng thời tiết</h4>
           <div class="trend-controls">
-            <select id="trendRange">
-              <option value="365">12 tháng trước</option>
-              <option value="90">90 ngày</option>
-              <option value="30">30 ngày</option>
-            </select>
-              <select>
+            <form method="get" id="filterForm">
+              <input type="text" name="station_name" placeholder="Tên trạm..." value="{{ station_name }}" />
+              <select name="range" onchange="document.getElementById('filterForm').submit()">
                   <option value="365" {% if selected_range == 365 %}selected{% endif %}>12 tháng trước</option>
                   <option value="90" {% if selected_range == 90 %}selected{% endif %}>90 ngày</option>
                   <option value="30" {% if selected_range == 30 %}selected{% endif %}>30 ngày</option>
               </select>
+              <button type="submit">Lọc</button>
+            </form>
           </div>
         </div>
         <div class="trend-chart-wrap">
@@ -139,55 +120,35 @@
       <div class="day-grid">
         {% for d in forecast_7 %}
         <div class="day-block">
-          <div class="day">{{ d.day }}</div>
-          <div class="max">Max: {{ d.max_temp }}°C</div>
-          <div class="min">Min: {{ d.min_temp }}°C</div>
-        </div>
-        {% endfor %}
-      </div>
-    </section>
-    <section class="card daily-14">
-      <h4>Dự báo 14 ngày tiếp theo</h4>
-      <div class="day-grid">
-        {% for d in forecast_14 %}
-        <div class="day-block">
-          <div class="day">{{ d.day }}</div>
-          <div class="max">Max: {{ d.max_temp }}°C</div>
-          <div class="min">Min: {{ d.min_temp }}°C</div>
-        </div>
-        {% endfor %}
-      </div>
-    </section>
-    <section class="card daily-21">
-      <h4>Dự báo 21 ngày tiếp theo</h4>
-      <div class="day-grid">
-        {% for d in forecast_21 %}
-        <div class="day-block">
-          <div class="day">{{ d.day }}</div>
-          <div class="max">Max: {{ d.max_temp }}°C</div>
-          <div class="min">Min: {{ d.min_temp }}°C</div>
-          <div class="avg">Mean: {{ d.avg_temp }}°C</div>
+          <div class="day">{{ d.day }}, {{ d.ds.strftime("%d/%m") }}</div>
+          <div class="avg">TB: {{ d.mean_temp }}°C</div>
         </div>
         {% endfor %}
       </div>
     </section>
 
-    <!-- Climate Info -->
-=======
-    <section class="card daily-forecast"> 
-      <form method="get" action="/" style="margin-bottom: 1rem;"> 
-        <label for="days">Chọn số ngày dự báo:</label> 
-        <select name="days" id="days" onchange="this.form.submit()"> 
-          <option value="7" {% if forecast_days == 7 %}selected{% endif %}>7 ngày</option> 
-          <option value="14" {% if forecast_days == 14 %}selected{% endif %}>14 ngày</option> 
-          <option value="21" {% if forecast_days == 21 %}selected{% endif %}>21 ngày</option> 
-        </select> 
-      </form> 
-      <h4>Dự báo {{ forecast_days }} ngày tiếp theo</h4> 
-      <div class="day-grid"> {% for d in forecast %} <div class="day-block"> 
-        <div class="day">{{ d.day }}, {{ d.ds.strftime("%d/%m") }}</div> 
-        <div class="avg">TB: {{ d.mean_temp }}°C</div> 
-      </div> {% endfor %} </div> 
+    <section class="card daily-14">
+      <h4>Dự báo 14 ngày tiếp theo</h4>
+      <div class="day-grid">
+        {% for d in forecast_14 %}
+        <div class="day-block">
+          <div class="day">{{ d.day }}, {{ d.ds.strftime("%d/%m") }}</div>
+          <div class="avg">TB: {{ d.mean_temp }}°C</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card daily-21">
+      <h4>Dự báo 21 ngày tiếp theo</h4>
+      <div class="day-grid">
+        {% for d in forecast_21 %}
+        <div class="day-block">
+          <div class="day">{{ d.day }}, {{ d.ds.strftime("%d/%m") }}</div>
+          <div class="avg">TB: {{ d.mean_temp }}°C</div>
+        </div>
+        {% endfor %}
+      </div>
     </section>
     <section class="info-row">
       <div class="card climate-info">
@@ -199,7 +160,6 @@
           <li>Tháng nhiều gió nhất: <strong>Tháng {{ wind_month }}</strong></li>
         </ul>
       </div>
-
       <div class="card climate-summary">
         <h5>Tóm tắt 12 tháng trước</h5>
         <table>
@@ -234,6 +194,7 @@
       <div id="map" style="height:320px;border-radius:8px;overflow:hidden;"></div>
     </section>
   </main>
+
   <script>
     async function handleSearch() {
       const query = document.getElementById("searchInput").value.trim();
@@ -250,25 +211,6 @@
         ).join("");
         resultsBox.style.display = "block";
       } else {
-      if (query.length < 2) { 
-        resultsBox.style.display = "none";
-        return;
-      }
-      
-      try {
-        const response = await fetch(`/search_province?q=${encodeURIComponent(query)}`);
-        const results = await response.json();
-
-        if (results.length > 0) {
-          resultsBox.innerHTML = results.map(
-            p => `<div class="search-item" onclick="selectProvince('${p}')">${p}</div>`
-          ).join("");
-          resultsBox.style.display = "block";
-        } else {
-          resultsBox.style.display = "none";
-        }
-      } catch (error) {
-        console.error("Lỗi khi tìm kiếm tỉnh:", error);
         resultsBox.style.display = "none";
       }
     }
@@ -301,24 +243,11 @@
       if (sections[sectionKey]) {
         sections[sectionKey].forEach(id => {
           const el = document.querySelector(`.${id}`);
-        'weather': ['nowcast-card-modern'],
-        'hourly': ['hourly-card'],
-        'forecast': ['daily-forecast'],
-        'trends': ['overview-row'],
-        'climate': ['climate-info', 'climate-summary'],
-        'map': ['map-card']
-      };
-
-      document.querySelectorAll('.card, .nowcast-card-modern, .overview-row, .climate-summary, .climate-info, .map-card, .hourly-card, .daily-forecast')
-        .forEach(sec => { sec.style.display = 'none'; });
-
-      if (sections[sectionKey]) {
-        sections[sectionKey].forEach(cls => {
-          const el = document.querySelector(`.${cls}`);
           if (el) el.style.display = 'block';
         });
       }
     }
+
     window.onload = function() {
       const trendLabels = {{ trend_data.labels | tojson }};
       const trendHighs = {{ trend_data.highs | tojson }};
@@ -331,79 +260,44 @@
           datasets: [
             { label: 'Mức cao hàng ngày', data: trendHighs, borderColor: 'red', fill: false },
             { label: 'Mức thấp hàng ngày', data: trendLows, borderColor: 'blue', fill: false }
-    function renderTrendChart(labels, highs, lows) {
-      new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            { label: 'Mức cao hàng ngày', data: highs, borderColor: 'red', fill: false },
-            { label: 'Mức thấp hàng ngày', data: lows, borderColor: 'blue', fill: false }
           ]
         },
         options: { responsive: true }
       });
+
       const hours = {{ hourly | map(attribute='hour') | list | tojson }};
       const temps = {{ hourly | map(attribute='tmp_c') | list | tojson }};
-      new Chart(document.getElementById('hourlyChart')), {
-    }
-    function renderHourlyChart(hours, temps) {
-      const ctx = document.getElementById('hourlyChart').getContext('2d');
+
       const tempMin = Math.min(...temps);
       const tempMax = Math.max(...temps);
-      const yMin = Math.floor(tempMin - 2);
-      const yMax = Math.ceil(tempMax + 2);
+      const yMin = Math.floor(tempMin - 2); 
+      const yMax = Math.ceil(tempMax + 2);   
 
-      if (window.hourlyChartInstance) {
-        window.hourlyChartInstance.destroy(); 
-      }
-
-      window.hourlyChartInstance = new Chart(ctx, {
+      new Chart(document.getElementById('hourlyChart'), {
         type: 'line',
         data: {
           labels: hours.map(h => h + ":00"),
           datasets: [{
             label: 'Nhiệt độ (°C)',
             data: temps,
-            borderColor: '#2563eb',
+            borderColor: '#f97316',
             borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0,
+            tension: 0.5,
+            pointRadius: 3,
+            pointBackgroundColor: '#fb923c',
             fill: true,
             backgroundColor: function(context) {
               const {ctx, chartArea} = context.chart;
               if (!chartArea) return null;
               const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-              gradient.addColorStop(0, 'rgba(37,99,235,0.4)');
-              gradient.addColorStop(1, 'rgba(255,255,255,0.1)');
+              gradient.addColorStop(0, 'rgba(251, 146, 60, 0.4)');  
+              gradient.addColorStop(1, 'rgba(255, 237, 213, 0.1)'); 
               return gradient;
             }
-            borderColor: '#f97316',
-            borderWidth: 2,
-            tension: 0.5,
-            pointRadius: 4,
-            pointBackgroundColor: '#fb923c',
-            fill: true,
-            backgroundColor: ctx.createLinearGradient(0, 0, 0, 120)
           }]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false }},
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 12 }}},
-            y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#475569', font: { size: 12 }}}
-          }
-        }
-      });
-
-      // Map
-      const API_KEY = "NljJwzoKlLtHzqfXLaimhvOyDUXkqpRl";
-      const map = L.map('map').setView([21.0285, 105.8542], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap'}).addTo(map);
-      L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
-        attribution: '&copy; <a href="https://openweathermap.org/">OpenWeather</a>'
-      }).addTo(map);
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -433,68 +327,16 @@
               }
             }
           }
-        },
-        plugins: [{
-          id: 'customBackgroundGradient',
-          beforeDraw: chart => {
-            const ctx = chart.ctx;
-            const chartArea = chart.chartArea;
-            if (!chartArea) return;
-            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, 'rgba(251, 146, 60, 0.4)');
-            gradient.addColorStop(1, 'rgba(255, 237, 213, 0.1)');
-            chart.data.datasets[0].backgroundColor = gradient;
-          }
-        }]
+        }
       });
-    }
-    function initMap() {
-      const API_KEY = "6089ec445963d819e1eea3d90f943bea";
+
+
+      const API_KEY = "NljJwzoKlLtHzqfXLaimhvOyDUXkqpRl";
       const map = L.map('map').setView([21.0285, 105.8542], 6);
-      const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap'}).addTo(map);
+      L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
+        attribution: '&copy; <a href="https://openweathermap.org/">OpenWeather</a>'
       }).addTo(map);
-      const tempLayer = L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
-        attribution: '&copy; OpenWeather',
-        opacity: 0.6
-      });
-      const precipitationLayer = L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
-        attribution: '&copy; OpenWeather',
-        opacity: 0.6
-      });
-      const windLayer = L.tileLayer(`https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
-        attribution: '&copy; OpenWeather',
-        opacity: 0.6
-      });
-      const pressureLayer = L.tileLayer(`https://tile.openweathermap.org/map/pressure_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
-        attribution: '&copy; OpenWeather',
-        opacity: 0.6
-      });
-      const overlayMaps = {
-        "Nhiệt độ": tempLayer,
-        "Mưa": precipitationLayer,
-        "Gió": windLayer,
-        "Áp suất": pressureLayer
-      };
-      L.control.layers(null, overlayMaps).addTo(map);
-
-      tempLayer.addTo(map);
-    }
-    window.onload = function() {
-      try {
-        const trendLabels = {{ trend_data.labels | tojson }};
-        const trendHighs = {{ trend_data.highs | tojson }};
-        const trendLows = {{ trend_data.lows | tojson }};
-        renderTrendChart(trendLabels, trendHighs, trendLows);
-
-        const hours = {{ hourly | map(attribute='hour') | list | tojson }};
-        const temps = {{ hourly | map(attribute='tmp_c') | list | tojson }};
-        renderHourlyChart(hours, temps);
-
-        initMap();
-      } catch (err) {
-        console.error("Lỗi khởi tạo dữ liệu:", err);
-      }
     }
   </script>
 </body>
