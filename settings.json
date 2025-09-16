@@ -1,5 +1,0 @@
-{
-    "javascript.validate.enable": false,
-    "eslint.enable": false,
-    "html.validate.scripts": false
-}
