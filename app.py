@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request
-from flask_bootstrap import Bootstrap 
 import pandas as pd
 from pmdarima import auto_arima
 from datetime import timedelta
 import os
 
 app = Flask(__name__)
-Bootstrap(app)
 
 def load_weather():
     df = pd.read_csv("weather_2025_cleaned.csv", parse_dates=["DATE"])
