@@ -3,6 +3,7 @@ from flask_bootstrap import Bootstrap
 import pandas as pd
 from pmdarima import auto_arima
 from datetime import timedelta
+import os
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -165,4 +166,5 @@ def index():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Mặc định là 5000 nếu không có PORT
+    app.run(host="0.0.0.0", port=port)
