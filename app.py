@@ -164,3 +164,7 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return f"Error: {str(e)}", 500
