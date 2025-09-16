@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 import pandas as pd
-from pmdarima import auto_arima
 from datetime import timedelta
 
 app = Flask(__name__)
@@ -20,19 +19,12 @@ def load_weather():
     df = df.merge(stations_info, left_on="station", right_on="station_id", how="left")
     return df
 
-def forecast_future_arima_all(df, days=7):
-    daily = df.resample("D", on="date")["tmp_c"].agg(["mean"]).dropna().reset_index()
-    y_mean = daily["mean"].values
-    model_mean = auto_arima(y_mean, seasonal=True, m=7, trace=False, error_action="ignore", suppress_warnings=True)
-    forecast_mean = model_mean.predict(n_periods=days)
-
-    future_dates = pd.date_range(daily["date"].iloc[-1] + pd.Timedelta(days=1), periods=days, freq="D")
-    fc = pd.DataFrame({
-        "ds": future_dates,
-        "mean_temp": forecast_mean.round(1),
-        "day": future_dates.strftime("%A")
-    })
-    return fc
+def load_forecast(path):
+    df = pd.read_csv(path)
+    df["ds"] = pd.to_datetime(df["ds"], errors="coerce")
+    if "day" not in df.columns:
+        df["day"] = df["ds"].dt.strftime("%A")
+    return df
 
 @app.route("/")
 def index():
@@ -62,9 +54,9 @@ def index():
             df_filtered["station_name"].str.lower().str.contains(input_station_name, na=False)
         ]
 
-    forecast_7 = forecast_future_arima_all(df, days=7)
-    forecast_14 = forecast_future_arima_all(df, days=14)
-    forecast_21 = forecast_future_arima_all(df, days=21)
+    forecast_7 = load_forecast("forecast_7.csv")
+    forecast_14 = load_forecast("forecast_14.csv")
+    forecast_21 = load_forecast("forecast_21.csv")
 
     daily_trend = df_filtered_for_trend.resample("D", on="date")["tmp_c"].agg(["max", "min", "mean"]).dropna().reset_index()
 
@@ -162,9 +154,9 @@ def index():
         selected_range=range_days  
     )
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
 @app.errorhandler(Exception)
 def handle_exception(e):
     return f"Error: {str(e)}", 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
