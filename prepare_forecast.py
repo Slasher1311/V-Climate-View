@@ -35,14 +35,13 @@ def main():
     df = load_weather_data()
 
     forecast_7 = forecast_future_arima(df, days=7)
-    forecast_14 = forecast_future_arima(df, days=14)
-    forecast_21 = forecast_future_arima(df, days=21)
+    forecast_30 = forecast_future_arima(df, days=30)
 
     forecast_7.to_csv("forecast_7.csv", index=False)
-    forecast_14.to_csv("forecast_14.csv", index=False)
-    forecast_21.to_csv("forecast_21.csv", index=False)
+    forecast_30.to_csv("forecast_30.csv", index=False)
 
-    print("✅ Dự báo đã lưu thành công vào forecast_7.csv, forecast_14.csv, forecast_21.csv")
+
+    print("✅ Dự báo đã lưu thành công vào forecast_7.csv, forecast_30.csv")
 
 if __name__ == "__main__":
     main()
