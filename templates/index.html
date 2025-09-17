@@ -24,7 +24,7 @@
       <div class="filter-menu-horizontal">
         <button class="filter-item" onclick="showSection('weather')">Tổng quan</button>
         <button class="filter-item" onclick="showSection('hourly')">Dự báo theo giờ</button>
-        <button class="filter-item" onclick="showSection('forecast')">Dự báo các ngày</button>
+        <button class="filter-item" onclick="showSection('forecast')">Dự báo theo ngày tháng</button>
         <button class="filter-item" onclick="showSection('climate')">Khí hậu</button>
         <button class="filter-item" onclick="showSection('trends')">Xu hướng</button>
         <button class="filter-item" onclick="showSection('map')">Bản đồ</button>
@@ -35,13 +35,13 @@
     <section class="card global-filter">
     <form id="globalFilterForm" method="get" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
       <div>
-        <label for="province">Tỉnh/Thành:</label>
-        <input type="text" name="province" id="province" value="{{ province or '' }}" placeholder="Nhập tên tỉnh...">
-      </div>
-
-      <div>
         <label for="station">Tên trạm:</label>
-        <input type="text" name="station_name" id="station" value="{{ station_name or '' }}" placeholder="VD: Hanoi">
+        <select name="station_name" id="station">
+          <option value="">Chọn trạm</option>
+          {% for s in stations %}
+            <option value="{{ s }}" {% if s.lower() == station_name.lower() %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
       </div>
 
       <div>
@@ -60,8 +60,9 @@
     <section class="row nowcast-row">
       <article class="card nowcast-card-modern">
         <div class="weather-main">
+          <div class="datetime">{{ formatted_time }}</div>
           <div class="left">
-            <div class="city">{{ latest_weather.city or "Hà Nội" }}</div>
+            <div class="city">{{ latest_weather.city }}</div>
             <div class="temp">{{ latest_weather.temp }}<span class="deg">°C</span></div>
             <div class="desc">{{ latest_weather.condition }} • Cảm thấy như {{ latest_weather.feels_like }}°C</div>
           </div>
@@ -88,7 +89,8 @@
           <h4>Xu hướng thời tiết</h4>
           <div class="trend-controls">
             <form method="get" id="filterForm">
-              <input type="text" name="station_name" placeholder="Tên trạm..." value="{{ station_name }}" />
+              <input type="text" name="station_name" placeholder="Tên trạm..." 
+                value="{{ station_name }}" onchange="document.getElementById('filterForm').submit()" />
               <select name="range" onchange="document.getElementById('filterForm').submit()">
                   <option value="365" {% if selected_range == 365 %}selected{% endif %}>12 tháng trước</option>
                   <option value="90" {% if selected_range == 90 %}selected{% endif %}>90 ngày</option>
@@ -115,8 +117,8 @@
         {% endfor %}
       </div>
     </section>
-    <section class="card daily-card">
-      <h4>Dự báo 7 ngày tiếp theo</h4>
+    <section class="card daily-forecast-card">
+      <h4>Dự báo theo ngày tháng</h4>
       <div class="day-grid">
         {% for d in forecast_7 %}
         <div class="day-block">
@@ -125,29 +127,9 @@
         </div>
         {% endfor %}
       </div>
-    </section>
-
-    <section class="card daily-14">
-      <h4>Dự báo 14 ngày tiếp theo</h4>
-      <div class="day-grid">
-        {% for d in forecast_14 %}
-        <div class="day-block">
-          <div class="day">{{ d.day }}, {{ d.ds.strftime("%d/%m") }}</div>
-          <div class="avg">TB: {{ d.mean_temp }}°C</div>
-        </div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="card daily-21">
-      <h4>Dự báo 21 ngày tiếp theo</h4>
-      <div class="day-grid">
-        {% for d in forecast_21 %}
-        <div class="day-block">
-          <div class="day">{{ d.day }}, {{ d.ds.strftime("%d/%m") }}</div>
-          <div class="avg">TB: {{ d.mean_temp }}°C</div>
-        </div>
-        {% endfor %}
+      <h5 style="margin-top: 20px;"> Biểu đồ dự báo </h5>
+      <div class="trend-chart-wrap" style="width: 100%;">
+        <canvas id="forecast30Chart" width="800" height="300"></canvas>
       </div>
     </section>
     <section class="info-row">
@@ -230,13 +212,13 @@
       const sections = {
         'weather': ['nowcast-card'],
         'hourly': ['hourly-card'],
-        'forecast': ['daily-card','daily-14','daily-21'],
+        'forecast': ['daily-forecast-card'],
         'trends': ['overview-row'],
         'climate': ['climate-info','climate-summary'],
         'map': ['map-card']
       };
 
-      document.querySelectorAll('.card, .nowcast-card, .overview-row, .climate-summary, .climate-info, .map-card, .hourly-card, .daily-card, .daily-14, .daily-21').forEach(sec => {
+      document.querySelectorAll('.card, .nowcast-card, .overview-row, .climate-summary, .climate-info, .map-card, .hourly-card, .daily-card, .daily-forecast-card').forEach(sec => {
         sec.style.display = 'none';
       });
 
@@ -248,7 +230,8 @@
       }
     }
 
-    window.onload = function() {
+    window.onload = function() 
+    {
       const trendLabels = {{ trend_data.labels | tojson }};
       const trendHighs = {{ trend_data.highs | tojson }};
       const trendLows = {{ trend_data.lows | tojson }};
@@ -330,6 +313,35 @@
         }
       });
 
+      const forecast30Labels = {{ forecast_30_labels | tojson }};
+      const forecast30Temps = {{ forecast_30_temps | tojson }};
+
+      new Chart(document.getElementById('forecast30Chart'), {
+          type: 'line',
+          data: {
+              labels: forecast30Labels,
+              datasets: [{
+                  label: 'Nhiệt độ trung bình 30 ngày (°C)',
+                  data: forecast30Temps,
+                  borderColor: '#3b82f6',
+                  backgroundColor: 'rgba(59,130,246,0.2)',
+                  fill: true,
+                  tension: 0.4,
+                  pointRadius: 3
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: { display: true }
+              },
+              scales: {
+                  y: { beginAtZero: false },
+                  x: { grid: { display: false } }
+              }
+          }
+      });
 
       const API_KEY = "NljJwzoKlLtHzqfXLaimhvOyDUXkqpRl";
       const map = L.map('map').setView([21.0285, 105.8542], 6);
@@ -337,6 +349,13 @@
       L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
         attribution: '&copy; <a href="https://openweathermap.org/">OpenWeather</a>'
       }).addTo(map);
+      const stationData = {{ station_data | tojson }};
+      stationData.forEach(st => {
+        L.marker([st.latitude, st.longitude]).addTo(map)
+          .bindPopup(`<b>${st.station_name}</b><br>
+                      Nhiệt độ: ${st.tmp_c}°C<br>
+                      Gió: ${st.wind_speed} km/h`);
+      });
     }
   </script>
 </body>
