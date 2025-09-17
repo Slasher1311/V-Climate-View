@@ -49,14 +49,25 @@ def index():
 
     if input_station:
         df_filtered = df_filtered[df_filtered["station_id"] == input_station]
+
     if input_station_name:
         df_filtered = df_filtered[
-            df_filtered["station_name"].str.lower().str.contains(input_station_name, na=False)
-        ]
+            df_filtered["station_name"].str.lower().str.contains(input_station_name, na=False)]
+        df_filtered_for_trend = df_filtered_for_trend[
+            df_filtered_for_trend["station_name"].str.lower().str.contains(input_station_name, na=False)]
+
+
+    stations_for_dropdown = df_filtered_for_trend[['station_name']].dropna().drop_duplicates()
+    station_names = stations_for_dropdown['station_name'].tolist()
+    station_name_selected = request.args.get("station_name", "")
 
     forecast_7 = load_forecast("forecast_7.csv")
-    forecast_14 = load_forecast("forecast_14.csv")
-    forecast_21 = load_forecast("forecast_21.csv")
+    forecast_30 = load_forecast("forecast_30.csv")
+
+    forecast_30['ds'] = pd.to_datetime(forecast_30['ds'])
+    
+    forecast_30_labels = forecast_30['ds'].dt.strftime("%d/%m").tolist()
+    forecast_30_temps = forecast_30['mean_temp'].tolist()
 
     daily_trend = df_filtered_for_trend.resample("D", on="date")["tmp_c"].agg(["max", "min", "mean"]).dropna().reset_index()
 
@@ -77,14 +88,17 @@ def index():
     )
 
     latest = df_filtered.sort_values(by="date", ascending=False).iloc[0] if not df_filtered.empty else df.iloc[0]
+    latest_date_all = df["date"].max().date()
+    latest_stations = df[df["day_only"] == latest_date_all]
+    stations = latest_stations.sort_values("date").groupby("station_name").tail(1)
 
-    stations = df[['station_name', 'latitude', 'longitude', 'tmp_c', 'wind_speed']] \
+    stations = stations[['station_name', 'latitude', 'longitude', 'tmp_c', 'wind_speed']] \
         .dropna(subset=["latitude", "longitude"]) \
-        .drop_duplicates(subset='station_name') \
-        .head(100)
+        .reset_index(drop=True)
     station_data = stations.to_dict(orient='records')
+    station_names = stations['station_name'].dropna().tolist()
 
-    monthly = df.groupby(df["date"].dt.month).agg({
+    monthly = df_filtered_for_trend.groupby(df_filtered_for_trend["date"].dt.month).agg({
         "tmp_c": "mean",
         "dew_c": "mean",
         "wind_speed": "mean"
@@ -95,10 +109,12 @@ def index():
     wet_month = int(monthly.loc[monthly["dew_c"].idxmax(), "date"])
     wind_month = int(monthly.loc[monthly["wind_speed"].idxmax(), "date"])
 
-    temp_high = df.resample("D", on="date")["tmp_c"].max()
-    temp_low = df.resample("D", on="date")["tmp_c"].min()
-    wind_daily = df.resample("D", on="date")["wind_speed"].mean()
-    rain_daily = df["precip_mm"].resample("D", on="date").sum() if "precip_mm" in df.columns else None
+    temp_high = df_filtered_for_trend.resample("D", on="date")["tmp_c"].max()
+    temp_low = df_filtered_for_trend.resample("D", on="date")["tmp_c"].min()
+    wind_daily = df_filtered_for_trend.resample("D", on="date")["wind_speed"].mean()
+    rain_daily = (df_filtered_for_trend["precip_mm"].resample("D", on="date").sum()
+        if "precip_mm" in df_filtered_for_trend.columns else None
+    )
 
     climate_summary = {
         "high_temp": {
@@ -126,6 +142,11 @@ def index():
     avg_high = round(daily_trend["max"].mean(), 1) if not daily_trend.empty else None
     avg_low = round(daily_trend["min"].mean(), 1) if not daily_trend.empty else None
 
+    weekday_map = { 0: "Thứ 2", 1: "Thứ 3", 2: "Thứ 4", 3: "Thứ 5", 4: "Thứ 6", 5: "Thứ 7", 6: "Chủ nhật"}
+    latest_date = df["date"].max()
+    thu = weekday_map[latest_date.weekday()]
+    formatted_time = f"{thu}, {latest_date.strftime('%d/%m/%Y %H:%M')}"
+
     return render_template(
         "index.html",
         latest_weather={
@@ -138,10 +159,13 @@ def index():
             "condition": "Nhiều mây"
         },
         forecast_7=forecast_7.to_dict(orient="records"),
-        forecast_14=forecast_14.to_dict(orient="records"),
-        forecast_21=forecast_21.to_dict(orient="records"),
+        forecast_14=forecast_30.to_dict(orient="records"),
         hourly=hourly.to_dict(orient="records"),
-        stations=station_data,
+        formatted_time=formatted_time,
+        station_data=station_data,
+        stations=station_names,
+        forecast_30_labels=forecast_30_labels,
+        forecast_30_temps=forecast_30_temps,
         hot_month=hot_month,
         cold_month=cold_month,
         wet_month=wet_month,
@@ -150,9 +174,10 @@ def index():
         avg_low=avg_low,
         climate_summary=climate_summary,
         trend_data=trend_data,
-        station_name=input_station_name,
-        selected_range=range_days  
+        station_name=station_name_selected,
+        selected_range=range_days
     )
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):
