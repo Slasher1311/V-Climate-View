@@ -28,7 +28,6 @@ body {
   margin-bottom: 1.8rem;
 }
 
-/* --- Topbar --- */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -61,8 +60,6 @@ body {
   margin-top: 1rem;
 }
 
-
-/* --- Dự báo theo giờ --- */
 .hour-scroll {
   display: flex;
   overflow-x: auto;
@@ -86,7 +83,6 @@ body {
   margin-top: 0.2rem;
 }
 
-/* --- Dự báo 5 ngày --- */
 .day-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
@@ -158,6 +154,142 @@ body {
 
 .map-card {
   padding: 1rem 1.5rem;
+}
+
+.global-filter {
+  margin: 1rem 0;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.global-filter form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.global-filter label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #334155;
+  margin-right: 0.4rem;
+}
+
+.global-filter select {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.global-filter select:focus {
+  border-color: #0ea5a4;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(14,165,164,0.25);
+}
+
+.global-filter button {
+  padding: 0.55rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: #0ea5a4;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.global-filter button:hover {
+  background: #028a89;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .global-filter form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .global-filter div {
+    width: 100%;
+  }
+
+  .global-filter button {
+    width: 100%;
+    text-align: center;
+  }
+}
+.navbar {
+  background: linear-gradient(90deg, #009688, #00bfa5);
+  padding: 10px;
+  display: flex;
+  gap: 12px;
+}
+
+.navbar button {
+  background: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navbar button:hover {
+  background: #00796b;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.navbar button.active {
+  background: #004d40;
+  color: white;
+  font-weight: 600;
+}
+
+.filter-menu-horizontal {
+  display: flex;
+  gap: 12px;
+  padding: 0;              
+  margin: 0;
+  background: transparent; 
+}
+
+.filter-item {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.05);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.filter-item:hover {
+  background: #00796b;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.filter-item.active {
+  background: #004d40;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 @media (max-width: 960px) {
